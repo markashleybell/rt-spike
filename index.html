@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+        <title>Demo Page</title>
+    </head>
+    <body>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script type="text/javascript">
+            $(function() {
+                var _socket = new WebSocket('ws://localhost:8001');
+                var _connected = false;
+
+                _socket.onopen = function() {
+                    _connected = true;
+                };
+
+                _socket.onclose = function(e) {
+                    _socket = null;
+                    _connected = false;
+                };
+
+                $(window).on('beforeunload', function(){
+                    if(_socket) {
+                        _socket.onclose = function() {};
+                        _socket.close();
+                    }
+                });
+
+                $(document).on('mousemove', function(e) {
+                    if (_connected) {
+                        _socket.send(JSON.stringify({ coords: e.pageX + ',' + e.pageY }));
+                    }
+                });
+            });
+        </script>
+    </body>
+</html>

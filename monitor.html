@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+        <title>Websocket Server Message Log</title>
+        <style type="text/css">
+            body {
+                font-family: Courier, monospace;
+            }
+            #log div {
+                padding: 5px 0;
+                border-bottom: solid 1px #e0e0e0;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="log"></div>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script type="text/javascript">
+            $(function() {
+                var _log = $('#log');
+
+                var _server = 'ws://localhost:8001';
+
+                var _socket = new WebSocket(_server);
+                _socket.binaryType = 'arraybuffer';
+                var _connected = false;
+
+                var _logMessage = function(msg) {
+                    var div = $('<div>');
+                    div.text(JSON.stringify(msg));
+                    _log.append(div);
+                };
+
+                _socket.onopen = function() {
+                    _connected = true;
+                    _logMessage({"message": "Connected to server"});
+                };
+
+                _socket.onmessage = function(e) {
+                    if (typeof e.data == 'string') {
+                        var response = JSON.parse(e.data);
+                        _logMessage(response);
+                    } else {
+                        var arr = new Uint8Array(e.data);
+                        var hex = [];
+                        for (var i = 0; i < arr.length; i++) {
+                            hex.push(('00' + arr[i].toString(16)).substr(-2));
+                        }
+                    }
+                };
+
+                _socket.onclose = function(e) {
+                    _socket = null;
+                    _connected = false;
+                    _logMessage({"message": "Disonnected from server"});
+                };
+
+                $(window).on('beforeunload', function(){
+                    if(_socket) {
+                        _socket.onclose = function() {};
+                        _socket.close();
+                    }
+                });
+            });
+        </script>
+    </body>
+</html>
