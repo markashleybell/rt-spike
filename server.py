@@ -13,8 +13,8 @@ class BroadcastServerFactory(WebSocketServerFactory):
     currently connected clients.
     """
 
-    def __init__(self, url, debug = False, debugCodePaths = False):
-        WebSocketServerFactory.__init__(self, url, debug = debug, debugCodePaths = debugCodePaths)
+    def __init__(self, url):
+        WebSocketServerFactory.__init__(self, url)
         self.clients = []
 
     def register(self, client):
@@ -71,7 +71,7 @@ if __name__ == '__main__':
     host = "localhost"
     port = 8001
 
-    factory = BroadcastServerFactory("ws://{0}:{1}".format(host, port), debug=False)
+    factory = BroadcastServerFactory("ws://{0}:{1}".format(host, port))
     factory.protocol = MyServerProtocol
 
     reactor.listenTCP(port, factory)
